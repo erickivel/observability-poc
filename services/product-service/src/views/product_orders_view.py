@@ -3,11 +3,11 @@ import psycopg2
 
 from db import get_db_connection
 
-products_bp = Blueprint('products', __name__, url_prefix="/products")
+product_orders_bp = Blueprint('product_orders', __name__, url_prefix="/product_orders")
 
-@products_bp.route('/', methods=['POST'])
-def create_product():
-    print("Creating product")
+@product_orders_bp.route('/', methods=['POST'])
+def create_product_order():
+    print("Creating product_order")
     connection = get_db_connection()
 
     if connection:
@@ -19,25 +19,21 @@ def create_product():
                 return jsonify({"error": "Request body is null"}), 403
 
             cursor.execute("""
-                INSERT INTO products (name, value) 
-                VALUES (%s, %s)
+                INSERT INTO product_orders (quantity, product_id, order_id) 
+                VALUES (%s, %s, %s)
                 RETURNING *;
             """, 
-                (data["name"], data["value"])
+                (data["quantity"], data["product_id"], data["order_id"])
             )
 
             connection.commit()
 
-            row = cursor.fetchall()[0]
-            res = {
-                "id": row[0],
-                "name": row[1],
-                "value": row[2],
-                "created_at": row[3],
-                "updated_at": row[4],
-            }
+            rows = cursor.fetchall()
+            column_names = [desc[0] for desc in cursor.description]
 
-            print(f"Product '{row[0]}' created successfully!")
+            res = [{column_names[i]: row[i] for i in range(len(row))} for row in rows][0]
+
+            print(f"product_order '{rows[0][0]}' created successfully!")
             return jsonify(res), 201
         except psycopg2.Error as e:
             print("Error executing query:", e)
@@ -48,16 +44,16 @@ def create_product():
 
     return jsonify({"error": "Error when connecting to database"}), 500
 
-@products_bp.route('/', methods=['GET'])
-def list_products():
-    print("Fetching products")
+@product_orders_bp.route('/', methods=['GET'])
+def list_product_orders():
+    print("Fetching product_orders")
     connection = get_db_connection()
 
     if connection:
         cursor = connection.cursor()
         try:
             cursor.execute("""
-                SELECT * FROM products
+                SELECT * FROM product_orders
                 ORDER BY id DESC
                 LIMIT 100
             """
@@ -66,9 +62,12 @@ def list_products():
             connection.commit()
 
             rows = cursor.fetchall()
-            res = [{"id": t[0], "name": t[1], "value": t[2], "created_at": t[3], "updated_at": t[4]} for t in rows]
+            column_names = [desc[0] for desc in cursor.description]
 
-            print("Products fetched successfully!")
+            res = [{column_names[i]: row[i] for i in range(len(row))} for row in rows]
+
+
+            print("product_orders fetched successfully!")
             return jsonify(res)
         except psycopg2.Error as e:
             print("Error executing query:", e)
