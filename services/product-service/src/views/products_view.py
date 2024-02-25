@@ -27,12 +27,40 @@ def create_product():
 
             connection.commit()
 
-            row = cursor.fetchall()
+            row = cursor.fetchall()[0]
             res = {
-                "id": row[0][0],
-                "name": row[0][1],
-                "value": row[0][2]
+                "id": row[0],
+                "name": row[1],
+                "value": row[2]
             }
+
+            return jsonify(res)
+        except psycopg2.Error as e:
+            print("Error executing query:", e)
+        finally:
+            cursor.close()
+            connection.close()
+
+    return jsonify({"error": "Error when connecting to database"}), 500
+
+@products_bp.route('/', methods=['GET'])
+def list_products():
+    connection = get_db_connection()
+
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.execute("""
+                SELECT * FROM products
+                ORDER BY id DESC
+                LIMIT 100
+            """
+           )
+
+            connection.commit()
+
+            rows = cursor.fetchall()
+            res = [{"id": t[0], "name": t[1], "value": t[2]} for t in rows]
 
             return jsonify(res)
         except psycopg2.Error as e:
