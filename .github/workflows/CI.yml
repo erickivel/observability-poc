@@ -26,7 +26,7 @@ jobs:
         run: |
           cd ./services/user-service
           yarn
-          cd ../services/order-service
+          cd ../order-service
           pip install -r requirements.txt
       
       - name: Build
