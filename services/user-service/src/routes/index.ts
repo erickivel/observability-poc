@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { UserController } from "../controllers/UserController";
+import { StressTestingController } from "../controllers/StressTestingController";
 
 const router = Router()
 
 const userController = new UserController()
+const stressTestingController = new StressTestingController()
 
 router.get("/ping", (req, res) => {
   res.json({
@@ -14,5 +16,8 @@ router.get("/ping", (req, res) => {
 router.post("/users", userController.createUser);
 router.get("/users", userController.listUsers);
 router.post("/users/order", userController.placeOrder);
+
+router.get("/stress-testing/long-runtime", stressTestingController.longRuntime);
+router.get("/stress-testing/error", stressTestingController.error);
 
 export { router }
