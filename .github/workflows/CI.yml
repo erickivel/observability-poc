@@ -1,0 +1,59 @@
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.20.2'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+        
+      - name: Install Dependencies
+        run: |
+          cd ./services/user-service
+          yarn
+          cd ../services/order-service
+          pip install -r requirements.txt
+      
+      - name: Build
+        run: |
+          yarn build
+          
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "., !services/user-service/node_modules"
+          target: "~/app/observability-poc"
+          
+      - name: Update APIs
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ~/app/observability-poc/services/user-service
+            yarn
+            cd ~/app/observability-poc/services/order-service
+            pip install -r requirements.txt
+            pm2 restart user-service-api
+            pm2 restart order-service-api
