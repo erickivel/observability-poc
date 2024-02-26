@@ -19,5 +19,6 @@ router.post("/users/order", userController.placeOrder);
 
 router.get("/stress-testing/long-runtime", stressTestingController.longRuntime);
 router.get("/stress-testing/error", stressTestingController.error);
+router.get("/stress-testing/loop", stressTestingController.loop);
 
 export { router }
