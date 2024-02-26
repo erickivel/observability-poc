@@ -31,6 +31,7 @@ jobs:
       
       - name: Build
         run: |
+          cd ./services/user-service
           yarn build
           
       - name: Copy files to EC2
