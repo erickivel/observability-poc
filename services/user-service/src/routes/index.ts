@@ -13,7 +13,6 @@ router.get("/ping", (req, res) => {
 
 router.post("/users", userController.createUser);
 router.get("/users", userController.listUsers);
-
-
+router.post("/users/order", userController.placeOrder);
 
 export { router }

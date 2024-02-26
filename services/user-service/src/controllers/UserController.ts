@@ -1,5 +1,6 @@
 import {Request, Response} from 'express'
 import { dbConnection } from '../db';
+import axios from 'axios';
 
 export class UserController {
   constructor(){}
@@ -43,5 +44,34 @@ export class UserController {
         res.json(result.rows)
       }
     });
+  }
+
+  public async placeOrder(req: Request, res: Response) {
+    const { user_id, product_ids, quantities } = req.body;
+    console.log(`Placing order user_id: "${user_id}", with products: [${product_ids.join(", ")}]`);
+
+    try {
+      const {data : orderData} = await axios.post("http://localhost:3001/orders", {
+        user_id: user_id
+      })
+
+      const postProductOrdersPromises = product_ids.map((product_id: string, idx: number) => {
+        return axios.post("http://localhost:3002/product_orders", {
+          order_id: orderData.id,
+          product_id: product_id,
+          quantity: quantities[idx]
+        })
+      })
+
+      await Promise.all(postProductOrdersPromises).then(async () => {
+        const {data : getOrder} = await axios.get(`http://localhost:3001/orders/${orderData.id}`)
+
+        res.json(getOrder);
+      })
+
+    } catch (error) {
+      console.error('Error placing order:', error);
+      return res.status(500).json({ message: 'Error placing order:' });
+    }
   }
 }

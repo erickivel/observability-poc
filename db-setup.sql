@@ -9,7 +9,6 @@ CREATE TABLE users (
 
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
-    total_value INT NOT NULL,
     user_id INT REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
