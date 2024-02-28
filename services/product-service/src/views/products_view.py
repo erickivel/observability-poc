@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 import psycopg2
 
-from db import get_db_connection
+from src.db import get_db_connection
 
 products_bp = Blueprint('products', __name__, url_prefix="/products")
 
