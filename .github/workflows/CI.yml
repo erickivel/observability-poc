@@ -58,3 +58,33 @@ jobs:
             pip install -r requirements.txt
             pm2 restart user-service-api
             pm2 restart order-service-api
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./services/product-service/
+          push: true
+          dockerfile: ./Dockerfile
+          tags: erickivel/product-service-api:latest
+      - name: Set permissions for private key
+        run: |
+          echo "${{ env.SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+      - name: Pull Docker image
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem app@${{ secrets.SSH_HOST }} 'sudo docker pull erickivel/product-service-api:latest'
+      - name: Rebuild container
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem app@${{ secrets.SSH_HOST }} 'sudo docker-compose up --build -d || true'
