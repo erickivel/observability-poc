@@ -86,5 +86,5 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > key.pem
           chmod 600 key.pem
-          ssh -o StrictHostKeyChecking=no -i key.pem $SSH_USER@$SSH_HOST 'sudo docker pull erickivel/product-service-api:latest'
-          ssh -o StrictHostKeyChecking=no -i key.pem $SSH_USER@$SSH_HOST 'sudo docker-compose up --build -d || true'
+          ssh -o StrictHostKeyChecking=no -i key.pem $SSH_USER@$SSH_HOST 'docker pull erickivel/product-service-api:latest'
+          ssh -o StrictHostKeyChecking=no -i key.pem $SSH_USER@$SSH_HOST 'docker-compose up --build -d || true'
