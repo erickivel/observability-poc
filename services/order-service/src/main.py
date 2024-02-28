@@ -1,7 +1,7 @@
 from flask import Flask 
 from flask_cors import CORS
 
-from routes import register_views
+from src.routes import register_views
 
 app = Flask(__name__)
 
