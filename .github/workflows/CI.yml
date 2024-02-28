@@ -84,7 +84,7 @@ jobs:
           chmod 600 key.pem
       - name: Pull Docker image
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem app@${{ secrets.SSH_HOST }} 'sudo docker pull erickivel/product-service-api:latest'
+          ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'sudo docker pull erickivel/product-service-api:latest'
       - name: Rebuild container
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem app@${{ secrets.SSH_HOST }} 'sudo docker-compose up --build -d || true'
+          ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'sudo docker-compose up --build -d || true'
