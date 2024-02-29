@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/UserController";
 import { StressTestingController } from "../controllers/StressTestingController";
+import { logger } from "../server";
 
 const router = Router()
 
@@ -8,6 +9,7 @@ const userController = new UserController()
 const stressTestingController = new StressTestingController()
 
 router.get("/ping", (req, res) => {
+  logger.log('info', 'Running ping route!')
   res.json({
     "ok": true
   })

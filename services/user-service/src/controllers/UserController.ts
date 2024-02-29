@@ -1,6 +1,7 @@
 import {Request, Response} from 'express'
 import { dbConnection } from '../db';
 import axios from 'axios';
+import { logger } from '../server';
 
 export class UserController {
   constructor(){}
@@ -8,6 +9,7 @@ export class UserController {
   public async createUser(req: Request, res: Response) {
     const { name, email, phone } = req.body;
     console.log(`Creating user: "${name}"`);
+    logger.log('info', `Creating user: "${name}"`)
 
     const insertQuery = `
       INSERT INTO users(name, email, phone)
@@ -18,8 +20,10 @@ export class UserController {
     dbConnection.query(insertQuery, [name, email, phone], (err, result) => {
       if (err) {
         console.error('Error creating user:', err);
+        logger.log('error', `User "${result.rows[0].name}" created successfully!`)
         return res.status(500).json({ message: 'Error when creating user' });
       } else {
+        logger.log('info', `User "${result.rows[0].name}" created successfully!`)
         console.log(`User "${result.rows[0].name}" created successfully!`);
         res.json(result.rows[0])
       }
@@ -28,6 +32,7 @@ export class UserController {
 
   public async listUsers(req: Request, res: Response) {
     console.log("Fetching users");
+    logger.log('info', "Fetching users")
 
     const selectQuery = `
       SELECT * FROM users
@@ -38,9 +43,11 @@ export class UserController {
     dbConnection.query(selectQuery, (err, result) => {
       if (err) {
         console.error('Error fetching users:', err);
+        logger.log('error', 'Error fetching users:', err)
         return res.status(500).json({ message: 'Error fetching users:' });
       } else {
-      console.log("Users fetched successfully!");
+        console.log("Users fetched successfully!");
+        logger.log('info', 'Users fetched successfully!')
         res.json(result.rows)
       }
     });
@@ -49,6 +56,7 @@ export class UserController {
   public async placeOrder(req: Request, res: Response) {
     const { user_id, product_ids, quantities } = req.body;
     console.log(`Placing order user_id: "${user_id}", with products: [${product_ids.join(", ")}]`);
+    logger.log('info', `Placing order user_id: "${user_id}", with products: [${product_ids.join(", ")}]`)
 
     try {
       const {data : orderData} = await axios.post("http://localhost:3001/orders", {
@@ -71,6 +79,7 @@ export class UserController {
 
     } catch (error) {
       console.error('Error placing order:', error);
+      logger.log('error', 'Error placing order:', error)
       return res.status(500).json({ message: 'Error placing order:' });
     }
   }

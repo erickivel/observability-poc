@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import {Pool} from "pg"
+import { logger } from './server'
 
 const DB_USER = process.env.DB_USER
 const DB_PASSWORD = process.env.DB_PASSWORD
@@ -17,8 +18,10 @@ export const dbConnection = new Pool({
 
 dbConnection.query('SELECT NOW()', (err, res) => {
   if (err) {
+    logger.log('error', 'Error connecting to the database:', err)
     console.error('Error connecting to the database:', err);
   } else {
+    logger.log('info', 'Connected to the database')
     console.log('Connected to the database');
   }
 });
@@ -27,6 +30,7 @@ dbConnection.query('SELECT NOW()', (err, res) => {
 process.on('SIGINT', () => {
   console.log('Closing database connection pool');
   dbConnection.end(() => {
+    logger.log('info', 'Database connection pool closed')
     console.log('Database connection pool closed');
     process.exit(0);
   });
@@ -35,7 +39,9 @@ process.on('SIGINT', () => {
 // Handle other termination signals as well
 process.on('SIGTERM', () => {
   console.log('Closing database connection pool');
+  logger.log('info', 'Closing database connection pool')
   dbConnection.end(() => {
+    logger.log('info', 'Database connection pool closed')
     console.log('Database connection pool closed');
     process.exit(0);
   });
