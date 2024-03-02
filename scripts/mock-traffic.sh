@@ -1,5 +1,9 @@
 #!/bin/bash
 
+BASE_URL="http://18.228.211.17"
+URL="${BASE_URL}/user-service/users/order"
+echo $URL
+
 while true; do
     # ===User service===
     # List users
@@ -10,7 +14,7 @@ while true; do
         "user_id": "1",
         "product_ids": [1, 3],
         "quantities": [1, 3]
-    }' "http://localhost:3000/users/order"
+    }' $URL
 
     sleep 2
 done
