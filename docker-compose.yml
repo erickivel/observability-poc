@@ -14,7 +14,7 @@ services:
     volumes:
       - pgdata:/data/postgres
   product_service_api:
-    build: ./services/product-service
+    image: erickivel/product-service-api:latest
     container_name: product_service_api
     ports:
       - 3002:3002
