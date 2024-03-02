@@ -20,7 +20,7 @@ export class UserController {
     dbConnection.query(insertQuery, [name, email, phone], (err, result) => {
       if (err) {
         console.error('Error creating user:', err);
-        logger.log('error', `User "${result.rows[0].name}" created successfully!`)
+        logger.log('error', `Error creating user: ${err}`)
         return res.status(500).json({ message: 'Error when creating user' });
       } else {
         logger.log('info', `User "${result.rows[0].name}" created successfully!`)
@@ -43,7 +43,7 @@ export class UserController {
     dbConnection.query(selectQuery, (err, result) => {
       if (err) {
         console.error('Error fetching users:', err);
-        logger.log('error', 'Error fetching users:', err)
+        logger.log('error', `Error fetching users: ${err}`)
         return res.status(500).json({ message: 'Error fetching users:' });
       } else {
         console.log("Users fetched successfully!");
@@ -71,15 +71,19 @@ export class UserController {
         })
       })
 
-      await Promise.all(postProductOrdersPromises).then(async () => {
-        const {data : getOrder} = await axios.get(`http://localhost:3001/orders/${orderData.id}`)
+      await Promise.all(postProductOrdersPromises)
+        .then(async () => {
+          const {data : getOrder} = await axios.get(`http://localhost:3001/orders/${orderData.id}`)
 
-        res.json(getOrder);
-      })
+          res.json(getOrder);
+        })
+        .catch(err => {
+          logger.log('error', `Error placing order: ${err}`)
+        })
 
     } catch (error) {
       console.error('Error placing order:', error);
-      logger.log('error', 'Error placing order:', error)
+      logger.log('error', `Error placing order: ${error}`)
       return res.status(500).json({ message: 'Error placing order:' });
     }
   }

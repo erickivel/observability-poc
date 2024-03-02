@@ -17,7 +17,7 @@ export class StressTestingController {
   public async error(req: Request, res: Response) {
     logger.log('info', 'Starting error test')
     setTimeout(() => {
-      logger.log('info', 'Error test finished successfully!')
+      logger.log('error', 'Error test finished successfully!')
       res.status(500).json({
         message: "Error test successfully triggered! XD"
       })

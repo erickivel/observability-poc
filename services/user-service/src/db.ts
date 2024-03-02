@@ -18,7 +18,7 @@ export const dbConnection = new Pool({
 
 dbConnection.query('SELECT NOW()', (err, res) => {
   if (err) {
-    logger.log('error', 'Error connecting to the database:', err)
+    logger.log('error', `Error connecting to the database:${err}`)
     console.error('Error connecting to the database:', err);
   } else {
     logger.log('info', 'Connected to the database')
