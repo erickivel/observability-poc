@@ -2,6 +2,8 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 
+from flask import current_app as app
+
 load_dotenv()
 
 DB_USER = os.getenv("DB_USER")
@@ -21,5 +23,5 @@ def get_db_connection():
         )
         return connection
     except psycopg2.Error as e:
-        print("Error connecting to database:", e)
+        app.logger.error("Error connecting to database: %s", e)
         return None

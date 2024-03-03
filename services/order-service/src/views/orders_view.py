@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask import current_app as app
 import psycopg2
 
 from src.db import get_db_connection
@@ -7,7 +8,7 @@ orders_bp = Blueprint('orders', __name__, url_prefix="/orders")
 
 @orders_bp.route('/', methods=['POST'])
 def create_order():
-    print("Creating order")
+    app.logger.info("Creating order")
     connection = get_db_connection()
 
     if connection:
@@ -36,10 +37,10 @@ def create_order():
                 "updated_at": row[3],
             }
 
-            print(f"Order '{row[0]}' created successfully!")
+            app.logger.info(f"Order '{row[0]}' created successfully!")
             return jsonify(res), 201
         except psycopg2.Error as e:
-            print("Error executing query:", e)
+            app.logger.error("Error executing query: %s", e)
             return jsonify({"error": "Error when creating order"}), 500
         finally:
             cursor.close()
@@ -49,7 +50,7 @@ def create_order():
 
 @orders_bp.route('/', methods=['GET'])
 def list_orders():
-    print("Fetching orders")
+    app.logger.info("Fetching orders")
     connection = get_db_connection()
 
     if connection:
@@ -67,10 +68,10 @@ def list_orders():
             rows = cursor.fetchall()
             res = [{"id": t[0], "user_id": t[1], "created_at": t[2], "updated_at": t[3]} for t in rows]
 
-            print("Orders fetched successfully!")
+            app.logger.info("Orders fetched successfully!")
             return jsonify(res)
         except psycopg2.Error as e:
-            print("Error executing query:", e)
+            app.logger.error("Error executing query: %s", e)
             return jsonify({"error": "Error when listing orders"}), 500
         finally:
             cursor.close()
@@ -81,7 +82,7 @@ def list_orders():
 @orders_bp.route('/<int:order_id>', methods=['GET'])
 def get_order_by_id(order_id):
     order_id = int(order_id)
-    print(f"Fetching order '{order_id}'")
+    app.logger.info(f"Fetching order '{order_id}'")
     connection = get_db_connection()
 
     if connection:
@@ -160,10 +161,10 @@ def get_order_by_id(order_id):
                 }
                 order_data["order"]["product_orders"].append(product_order_info)
 
-            print(f"Order '{order_id}' fetched successfully!")
+            app.logger.info(f"Order '{order_id}' fetched successfully!")
             return jsonify(order_data)
         except psycopg2.Error as e:
-            print("Error executing query:", e)
+            app.logger.error("Error executing query: %s", e)
             return jsonify({"error": "Error when fetching order"}), 500
         finally:
             cursor.close()
