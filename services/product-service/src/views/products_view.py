@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask import current_app as app
 import psycopg2
 
 from src.db import get_db_connection
@@ -7,7 +8,7 @@ products_bp = Blueprint('products', __name__, url_prefix="/products")
 
 @products_bp.route('/', methods=['POST'])
 def create_product():
-    print("Creating product")
+    app.logger.info("Creating product")
     connection = get_db_connection()
 
     if connection:
@@ -37,10 +38,10 @@ def create_product():
                 "updated_at": row[4],
             }
 
-            print(f"Product '{row[0]}' created successfully!")
+            app.logger.info(f"Product '{row[0]}' created successfully!")
             return jsonify(res), 201
         except psycopg2.Error as e:
-            print("Error executing query:", e)
+            app.logger.error("Error executing query: %s", e)
             return jsonify({"error": "Error when creating order"}), 500
         finally:
             cursor.close()
@@ -50,7 +51,7 @@ def create_product():
 
 @products_bp.route('/', methods=['GET'])
 def list_products():
-    print("Fetching products")
+    app.logger.info("Fetching products")
     connection = get_db_connection()
 
     if connection:
@@ -68,10 +69,10 @@ def list_products():
             rows = cursor.fetchall()
             res = [{"id": t[0], "name": t[1], "value": t[2], "created_at": t[3], "updated_at": t[4]} for t in rows]
 
-            print("Products fetched successfully!")
+            app.logger.info("Products fetched successfully!")
             return jsonify(res)
         except psycopg2.Error as e:
-            print("Error executing query:", e)
+            app.logger.error("Error executing query:", e)
             return jsonify({"error": "Error when creating order"}), 500
         finally:
             cursor.close()
