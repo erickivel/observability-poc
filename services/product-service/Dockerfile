@@ -8,4 +8,5 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD [ "gunicorn", "-w", "2", "-b", "0.0.0.0:3002", "--chdir", "services/product-service", "src.wsgi:app"]
+# CMD [ "gunicorn", "-w", "2", "-b", "0.0.0.0:3002", "--chdir", "services/product-service", "src.wsgi:app"]
+CMD [ "./services/product-service/start-product-service.sh"]
